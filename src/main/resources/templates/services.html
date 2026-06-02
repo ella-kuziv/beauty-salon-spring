@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Beauty Salon Services</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ffe1ef, #f4edff);
+            color: #333;
+        }
+
+        .page {
+            width: 90%;
+            max-width: 1100px;
+            margin: 40px auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 22px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: #b14f82;
+            font-size: 36px;
+        }
+
+        .header p {
+            color: #777;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 22px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            color: #b14f82;
+            margin-top: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #b14f82;
+            color: white;
+            padding: 14px;
+            text-align: left;
+        }
+
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #fff1f7;
+        }
+
+        .price {
+            font-weight: bold;
+            color: #b14f82;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 12px;
+            align-items: end;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+
+        button {
+            border: none;
+            border-radius: 12px;
+            padding: 12px 18px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .add-btn {
+            background: #b14f82;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #ffe1e1;
+            color: #b00020;
+        }
+
+        .empty {
+            text-align: center;
+            color: #888;
+            padding: 20px;
+        }
+
+        .footer {
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="page">
+
+    <div class="header">
+        <h1>Beauty Salon</h1>
+        <p>Веб-інтерфейс для перегляду, додавання та видалення послуг салону краси</p>
+    </div>
+
+    <div class="card">
+        <h2>Список послуг</h2>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Назва послуги</th>
+                <th>Тривалість</th>
+                <th>Вартість</th>
+                <th>Дія</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="service : ${services}">
+                <td th:text="${service.id}">1</td>
+                <td th:text="${service.name}">Classic Manicure</td>
+                <td>
+    <span th:if="${service.durationMinutes < 60}"
+          th:text="${service.durationMinutes} + ' хв'"></span>
+
+                    <span th:if="${service.durationMinutes >= 60}"
+                          th:text="${service.durationMinutes / 60} + ' год ' + (${service.durationMinutes % 60}) + ' хв'"></span>
+                </td>
+                <td class="price" th:text="${service.price} + ' грн'">800 грн</td>
+                <td>
+                    <form th:action="@{'/services-view/delete/' + ${service.id}}" method="post">
+                        <button class="delete-btn" type="submit">Видалити</button>
+                    </form>
+                </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(services)}">
+                <td colspan="5" class="empty">Поки що послуги відсутні</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Додати нову послугу</h2>
+
+        <form action="/services-view/add" method="post">
+            <div class="form-grid">
+                <div>
+                    <label>Назва послуги</label>
+                    <input type="text" name="name" placeholder="Наприклад, Gel Polish" required>
+                </div>
+
+                <div>
+                    <label>Тривалість, хв</label>
+                    <input type="number" name="durationMinutes" placeholder="90" required>
+                </div>
+
+                <div>
+                    <label>Вартість, грн</label>
+                    <input type="number" step="0.01" name="price" placeholder="800" required>
+                </div>
+
+                <button class="add-btn" type="submit">Додати</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="footer">
+        Дані завантажуються з PostgreSQL через Spring Boot та Thymeleaf
+    </div>
+
+</div>
+</body>
+</html>

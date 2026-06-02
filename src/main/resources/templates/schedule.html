@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Beauty Salon Schedule</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+    }
+
+    .page {
+      width: 92%;
+      max-width: 1200px;
+      margin: 30px auto;
+    }
+
+    .header {
+      margin-bottom: 25px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 34px;
+    }
+
+    .header p {
+      color: #aaa;
+      margin-top: 8px;
+    }
+
+    .top-actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .date-form {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .date-form label {
+      color: #ddd;
+    }
+
+    .date-form input {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #444;
+      background: #222;
+      color: white;
+    }
+
+    .date-form button,
+    .add-open-btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 10px;
+      background: #1e9bd7;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .add-open-btn {
+      background: #2fbf71;
+    }
+
+    .schedule {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      background: #181818;
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+    }
+
+    .time-column {
+      background: #111;
+      border-right: 1px solid #333;
+    }
+
+    .time-slot {
+      height: 90px;
+      border-bottom: 1px solid #333;
+      color: #aaa;
+      font-size: 18px;
+      padding-top: 8px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    .appointments-column {
+      position: relative;
+      min-height: 900px;
+      background:
+              repeating-linear-gradient(
+                      to bottom,
+                      #181818 0px,
+                      #181818 89px,
+                      #333 90px
+              );
+    }
+
+    .appointment-card {
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      border-radius: 14px;
+      padding: 10px 14px;
+      box-sizing: border-box;
+      background: #1e9bd7;
+      color: white;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .appointment-card:hover {
+      background: #2aa9e8;
+    }
+
+    .appointment-time {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .client {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .service {
+      font-size: 16px;
+      font-style: italic;
+      margin-top: 4px;
+    }
+
+    .details {
+      font-size: 14px;
+      margin-top: 6px;
+      opacity: 0.9;
+    }
+
+    .empty {
+      color: #aaa;
+      padding: 30px;
+      font-size: 18px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: #222;
+      color: white;
+      width: 430px;
+      max-width: 90%;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    .modal-content h2 {
+      margin-top: 0;
+      color: #1e9bd7;
+    }
+
+    .modal-content p {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: transparent;
+      color: white;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+    }
+
+    .add-form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .add-form-grid label {
+      font-size: 14px;
+      color: #ddd;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .add-form-grid input,
+    .add-form-grid select {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 10px;
+      border: 1px solid #444;
+      background: #111;
+      color: white;
+      box-sizing: border-box;
+    }
+
+    .submit-btn {
+      margin-top: 12px;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: #2fbf71;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .delete-btn {
+      margin-top: 14px;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: #b00020;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>Розклад записів</h1>
+    <p>Візуальне відображення записів клієнтів за часом</p>
+
+    <div class="top-actions">
+      <form action="/schedule-view" method="get" class="date-form">
+        <label>Оберіть дату:</label>
+        <input type="date" name="date" th:value="${selectedDate}">
+        <button type="submit">Показати</button>
+      </form>
+
+      <button class="add-open-btn" onclick="openAddModal()">+ Додати запис</button>
+    </div>
+  </div>
+
+  <div class="schedule">
+
+    <div class="time-column">
+      <div class="time-slot">08:00</div>
+      <div class="time-slot">09:00</div>
+      <div class="time-slot">10:00</div>
+      <div class="time-slot">11:00</div>
+      <div class="time-slot">12:00</div>
+      <div class="time-slot">13:00</div>
+      <div class="time-slot">14:00</div>
+      <div class="time-slot">15:00</div>
+      <div class="time-slot">16:00</div>
+      <div class="time-slot">17:00</div>
+    </div>
+
+    <div class="appointments-column">
+
+      <div th:if="${#lists.isEmpty(scheduleItems)}" class="empty">
+        На обрану дату записів поки що немає
+      </div>
+
+      <div class="appointment-card"
+           th:each="item : ${scheduleItems}"
+           th:style="'top:' + ${item.top} + 'px; height:' + ${item.height} + 'px;'"
+           onclick="openDetailsModal(this)"
+           th:data-id="${item.id}"
+           th:data-client="${item.clientName}"
+           th:data-phone="${item.clientPhone}"
+           th:data-service="${item.serviceName}"
+           th:data-master="${item.masterName}"
+           th:data-time="${item.startTime + ' - ' + item.endTime}"
+           th:data-price="${item.price}"
+           th:data-comment="${item.comment}">
+
+        <div class="appointment-time"
+             th:text="${item.startTime + ' - ' + item.endTime}">
+          09:00 - 10:30
+        </div>
+
+        <div class="client" th:text="${item.clientName}">
+          Client
+        </div>
+
+        <div class="service" th:text="${item.serviceName}">
+          Service
+        </div>
+
+        <div class="details">
+          <span th:text="'Майстер: ' + ${item.masterName}"></span>
+          <br>
+          <span th:text="'Ціна: ' + ${item.price} + ' грн'"></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="detailsModal" class="modal">
+  <div class="modal-content">
+    <button class="close-btn" onclick="closeDetailsModal()">×</button>
+
+    <h2>Деталі запису</h2>
+
+    <p><strong>Клієнт:</strong> <span id="modalClient"></span></p>
+    <p><strong>Телефон:</strong> <span id="modalPhone"></span></p>
+    <p><strong>Послуга:</strong> <span id="modalService"></span></p>
+    <p><strong>Майстер:</strong> <span id="modalMaster"></span></p>
+    <p><strong>Час:</strong> <span id="modalTime"></span></p>
+    <p><strong>Ціна:</strong> <span id="modalPrice"></span> грн</p>
+    <p><strong>Коментар:</strong> <span id="modalComment"></span></p>
+
+    <form id="deleteForm" method="post">
+      <input type="hidden" name="date" th:value="${selectedDate}">
+      <button class="delete-btn" type="submit">Видалити запис</button>
+    </form>
+  </div>
+</div>
+
+<div id="addModal" class="modal">
+  <div class="modal-content">
+    <button class="close-btn" onclick="closeAddModal()">×</button>
+
+    <h2>Додати запис</h2>
+
+    <form action="/schedule-view/add" method="post">
+      <div class="add-form-grid">
+
+        <div>
+          <label>Імʼя клієнта</label>
+          <input type="text" name="clientName" placeholder="Ella" required>
+        </div>
+
+        <div>
+          <label>Телефон</label>
+          <input type="text" name="clientPhone" placeholder="+380..." required>
+        </div>
+
+        <div>
+          <label>Дата і час</label>
+          <input type="datetime-local" name="appointmentDateTime" required>
+        </div>
+
+        <div>
+          <label>Послуга</label>
+          <select name="beautyServiceId" required>
+            <option th:each="service : ${services}"
+                    th:value="${service.id}"
+                    th:text="${service.name + ' — ' + service.price + ' грн'}">
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label>Майстер</label>
+          <select name="masterId" required>
+            <option th:each="master : ${masters}"
+                    th:value="${master.id}"
+                    th:text="${master.name + ' (' + master.specialization + ')'}">
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label>Коментар</label>
+          <input type="text" name="comment" placeholder="First visit">
+        </div>
+
+      </div>
+
+      <button class="submit-btn" type="submit">Зберегти запис</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openDetailsModal(card) {
+    document.getElementById("modalClient").textContent = card.dataset.client || "-";
+    document.getElementById("modalPhone").textContent = card.dataset.phone || "-";
+    document.getElementById("modalService").textContent = card.dataset.service || "-";
+    document.getElementById("modalMaster").textContent = card.dataset.master || "-";
+    document.getElementById("modalTime").textContent = card.dataset.time || "-";
+    document.getElementById("modalPrice").textContent = card.dataset.price || "-";
+    document.getElementById("modalComment").textContent = card.dataset.comment || "-";
+
+    document.getElementById("deleteForm").action = "/schedule-view/delete/" + card.dataset.id;
+
+    document.getElementById("detailsModal").style.display = "flex";
+  }
+
+  function closeDetailsModal() {
+    document.getElementById("detailsModal").style.display = "none";
+  }
+
+  function openAddModal() {
+    document.getElementById("addModal").style.display = "flex";
+  }
+
+  function closeAddModal() {
+    document.getElementById("addModal").style.display = "none";
+  }
+</script>
+
+</body>
+</html>

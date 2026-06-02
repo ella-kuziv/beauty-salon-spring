@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Beauty Salon Appointments</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ffe1ef, #f4edff);
+      color: #333;
+    }
+
+    .page {
+      width: 90%;
+      max-width: 1150px;
+      margin: 40px auto;
+    }
+
+    .header, .card {
+      background: white;
+      border-radius: 22px;
+      padding: 28px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+      margin-bottom: 25px;
+    }
+
+    h1, h2 {
+      color: #b14f82;
+    }
+
+    .subtitle {
+      color: #777;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    th {
+      background: #b14f82;
+      color: white;
+      padding: 14px;
+      text-align: left;
+    }
+
+    td {
+      padding: 14px;
+      border-bottom: 1px solid #eee;
+    }
+
+    tr:hover {
+      background: #fff1f7;
+    }
+
+    .price {
+      font-weight: bold;
+      color: #b14f82;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      box-sizing: border-box;
+      font-size: 15px;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .add-btn {
+      background: #b14f82;
+      color: white;
+      margin-top: 20px;
+    }
+
+    .delete-btn {
+      background: #ffe1e1;
+      color: #b00020;
+    }
+
+    .footer {
+      text-align: center;
+      color: #888;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>Beauty Salon</h1>
+    <p class="subtitle">Записи клієнтів за датою та часом</p>
+  </div>
+
+  <div class="card">
+    <h2>Список записів</h2>
+
+    <table>
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Клієнт</th>
+        <th>Процедура</th>
+        <th>Дата і час</th>
+        <th>Ціна</th>
+        <th>Дія</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr th:each="appointment : ${appointments}">
+        <td th:text="${appointment.id}"></td>
+        <td th:text="${appointment.clientName}"></td>
+        <td th:text="${appointment.beautyService.name}"></td>
+        <td th:text="${#temporals.format(appointment.appointmentDateTime, 'dd.MM.yyyy HH:mm')}"></td>
+        <td class="price" th:text="${appointment.beautyService.price} + ' грн'"></td>
+        <td>
+          <form th:action="@{'/appointments-view/delete/' + ${appointment.id}}" method="post">
+            <button class="delete-btn" type="submit">Видалити</button>
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Додати новий запис</h2>
+
+    <form action="/appointments-view/add" method="post">
+      <div class="form-grid">
+        <div>
+          <label>Імʼя клієнта</label>
+          <input type="text" name="clientName" placeholder="Olivia" required>
+        </div>
+
+        <div>
+          <label>Телефон</label>
+          <input type="text" name="clientPhone" placeholder="+380991112233" required>
+        </div>
+
+        <div>
+          <label>Дата і час</label>
+          <input type="datetime-local" name="appointmentDateTime" required>
+        </div>
+
+        <div>
+          <label>Послуга</label>
+          <select name="beautyServiceId" required>
+            <option th:each="service : ${services}"
+                    th:value="${service.id}"
+                    th:text="${service.name} + ' — ' + ${service.price} + ' грн'">
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label>Майстер</label>
+          <select name="masterId" required>
+            <option th:each="master : ${masters}"
+                    th:value="${master.id}"
+                    th:text="${master.name} + ' (' + ${master.specialization} + ')'">
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label>Коментар</label>
+          <input type="text" name="comment" placeholder="First visit">
+        </div>
+      </div>
+
+      <button class="add-btn" type="submit">Додати запис</button>
+    </form>
+  </div>
+
+  <div class="footer">
+    Дані записів завантажуються з PostgreSQL через Spring Boot та Thymeleaf
+  </div>
+
+</div>
+</body>
+</html>

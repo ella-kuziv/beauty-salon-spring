@@ -1,0 +1,101 @@
+POST http://localhost:8080/masters
+Content-Type: application/json
+
+{
+  "name": "Anna",
+  "specialization": "Manicure",
+  "experience": 5
+}
+
+###
+
+POST http://localhost:8080/masters
+Content-Type: application/json
+
+{
+  "name": "Kate",
+  "specialization": "Pedicure",
+  "experience": 3
+}
+
+###
+
+POST http://localhost:8080/masters
+Content-Type: application/json
+
+{
+  "name": "Olga",
+  "specialization": "Nail Design",
+  "experience": 7
+}
+
+###
+
+GET http://localhost:8080/masters
+
+###
+POST http://localhost:8080/services
+Content-Type: application/json
+
+{
+  "name": "Classic Manicure",
+  "durationMinutes": 90,
+  "price": 800
+}
+
+###
+POST http://localhost:8080/services
+Content-Type: application/json
+
+{
+  "name": "Pedicure",
+  "durationMinutes": 120,
+  "price": 1200
+}
+
+###
+POST http://localhost:8080/services
+Content-Type: application/json
+
+{
+  "name": "Nail Design",
+  "durationMinutes": 60,
+  "price": 500
+}
+
+###
+GET http://localhost:8080/services
+
+### Create appointment
+POST http://localhost:8080/appointments
+Content-Type: application/json
+
+{
+  "clientName": "Olivia",
+  "clientPhone": "+380991112233",
+  "appointmentDateTime": "2026-04-15T14:30:00",
+  "comment": "First visit",
+  "masterId": 1,
+  "beautyServiceId": 1
+}
+
+
+
+### Update service
+PUT http://localhost:8080/services/1
+Content-Type: application/json
+
+{
+"name": "Premium Manicure",
+"durationMinutes": 120,
+"price": 1200
+}
+
+### Delete appointment
+DELETE http://localhost:8080/appointments/1
+
+### Get external user
+GET http://localhost:8080/external-user
+
+
+
